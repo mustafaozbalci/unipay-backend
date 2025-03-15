@@ -8,4 +8,6 @@ import java.util.List;
 public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
     List<Restaurant> findByNameContainingIgnoreCase(String name); // Restoran ismine göre arama
     Restaurant findByName (String name);
+
+    boolean existsByName(String espressolab);
 }
