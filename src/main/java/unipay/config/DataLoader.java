@@ -34,11 +34,11 @@ public class DataLoader implements CommandLineRunner {
             System.out.println("Created default restaurant: espressolab");
         }
 
-        // Varsayılan restoran kullanıcılarını oluştur (örneğin; default password: "password")
+        // Varsayılan restoran kullanıcılarını oluştur (default password: "password", bakiye: 100.000 TL)
         if (!userRepository.existsByEmail("nero@nero.com")) {
             User neroUser = new User();
             neroUser.setUsername("nero");
-            neroUser.setPassword("password"); // Gerçek uygulamada şifreleri encode etmeyi unutmayın.
+            neroUser.setPassword("123456"); // Gerçek uygulamada şifreleri encode etmeyi unutmayın.
             neroUser.setEmail("nero@nero.com");
             neroUser.setBalance(0.0);
             userRepository.save(neroUser);
@@ -48,11 +48,22 @@ public class DataLoader implements CommandLineRunner {
         if (!userRepository.existsByEmail("espressolab@espressolab.com")) {
             User espressoUser = new User();
             espressoUser.setUsername("espressolab");
-            espressoUser.setPassword("password"); // Gerçek uygulamada şifreleri encode etmeyi unutmayın.
+            espressoUser.setPassword("123456"); // Gerçek uygulamada şifreleri encode etmeyi unutmayın.
             espressoUser.setEmail("espressolab@espressolab.com");
             espressoUser.setBalance(0.0);
             userRepository.save(espressoUser);
             System.out.println("Created default user for espressolab");
+        }
+
+        // Üçüncü default user: Örneğin, "defaultuser"
+        if (!userRepository.existsByEmail("mustafa@unipay.com")&& !userRepository.existsByUsername(("mustafa"))) {
+            User defaultUser = new User();
+            defaultUser.setUsername("mustafa");
+            defaultUser.setPassword("123456"); // Şifreleri encode etmek tavsiye edilir.
+            defaultUser.setEmail("mustafa@unipay.com");
+            defaultUser.setBalance(100000.0);
+            userRepository.save(defaultUser);
+            System.out.println("Created default user: mustafa");
         }
     }
 }
