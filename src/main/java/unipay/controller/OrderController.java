@@ -37,10 +37,11 @@ public class OrderController {
      */
     @PostMapping("/restaurant/orders")
     public ResponseEntity<List<OrderResponse>> getOrdersByRestaurant(@Valid @RequestBody RestaurantOrdersRequest restaurantOrdersRequest) {
-        List<OrderResponse> orders = orderService.getOrdersByRestaurant(restaurantOrdersRequest.getRestaurantId());
+        List<OrderResponse> orders = orderService.getOrdersByRestaurant(restaurantOrdersRequest.getName());
         orders.forEach(this::ensureItemsNonNull);
         return ResponseEntity.ok(orders);
     }
+
 
     /**
      * Kullanıcının Sipariş Geçmişini Getirme

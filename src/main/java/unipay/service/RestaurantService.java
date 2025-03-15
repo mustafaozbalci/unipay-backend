@@ -93,4 +93,8 @@ public class RestaurantService {
         logger.info("Restaurant with ID: {} deleted successfully", id);
         logger.info("deleteRestaurant() - End");
     }
+    public Restaurant findRestaurantByName(String name) {
+        // Örneğin, findByName metodu repository'de tanımlı olsun
+        return restaurantRepository.findByName(name);
+    }
 }

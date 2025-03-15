@@ -13,6 +13,7 @@ import unipay.mapper.OrderMapper;
 import unipay.repository.OrderRepository;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -109,19 +110,31 @@ public class OrderService {
 
     // Restoranın Siparişlerini Getirme (Okuma İşlemi)
     @Transactional(readOnly = true)
-    public List<OrderResponse> getOrdersByRestaurant(Long restaurantId) {
-        logger.info("getOrdersByRestaurant() - Start, restaurantId: {}", restaurantId);
-        logger.info("Fetching orders for restaurant ID: {}", restaurantId);
+    public List<OrderResponse> getOrdersByRestaurant(String restaurantName) {
+        logger.info("getOrdersByRestaurant() - Start, restaurantName: {}", restaurantName);
 
+        // Önce RestaurantService üzerinden restoranı buluyoruz
+        Restaurant restaurant = restaurantService.findRestaurantByName(restaurantName);
+        if (restaurant == null) {
+            logger.info("No restaurant found with name: {}", restaurantName);
+            return Collections.emptyList();
+        }
+        Long restaurantId = restaurant.getId();
+        logger.info("Found restaurant '{}' with id: {}", restaurantName, restaurantId);
+
+        // Restoran id'sine göre siparişleri çekiyoruz
         List<OrderResponse> orders = orderRepository.findByRestaurantId(restaurantId)
                 .stream()
                 .map(orderMapper::toOrderResponse)
                 .collect(Collectors.toList());
 
-        logger.info("Fetched {} orders for restaurant ID: {}", orders.size(), restaurantId);
+        logger.info("Fetched {} orders for restaurant with name: {}", orders.size(), restaurantName);
         logger.info("getOrdersByRestaurant() - End");
         return orders;
     }
+
+
+
 
     // Kullanıcının Sipariş Geçmişini Getirme (Okuma İşlemi)
     @Transactional(readOnly = true)
