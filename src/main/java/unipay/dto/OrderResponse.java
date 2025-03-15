@@ -13,4 +13,5 @@ public class OrderResponse {
     private String status;
     private Double totalAmount;
     private Integer estimatedPreparationTime;
+    private String customerUsername;
 }

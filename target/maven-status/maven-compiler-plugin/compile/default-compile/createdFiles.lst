@@ -34,6 +34,7 @@ unipay\mapper\RestaurantMapper.class
 unipay\entity\Order.class
 unipay\dto\PaymentDepositRequestDTO.class
 unipay\dto\UserOrdersRequest.class
+unipay\config\DataLoader.class
 unipay\service\UserService.class
 unipay\mapper\OrderMapperImpl.class
 unipay\service\RestaurantService.class

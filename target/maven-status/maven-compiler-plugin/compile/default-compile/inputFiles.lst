@@ -47,6 +47,7 @@ C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\dto\Rest
 C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\dto\UserLoginRequest.java
 C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\exception\UsernameAlreadyExistsException.java
 C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\dto\PaymentCardDTO.java
+C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\config\DataLoader.java
 C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\repository\RestaurantRepository.java
 C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\entity\Restaurant.java
 C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\entity\Order.java

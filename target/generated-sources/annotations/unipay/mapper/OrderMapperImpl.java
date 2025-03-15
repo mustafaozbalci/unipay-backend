@@ -9,10 +9,11 @@ import unipay.dto.OrderResponse;
 import unipay.entity.Order;
 import unipay.entity.OrderItem;
 import unipay.entity.Restaurant;
+import unipay.entity.User;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-03-15T02:25:58+0300",
+    date = "2025-03-15T04:19:37+0300",
     comments = "version: 1.5.3.Final, compiler: javac, environment: Java 17.0.12 (Oracle Corporation)"
 )
 @Component
@@ -29,6 +30,7 @@ public class OrderMapperImpl implements OrderMapper {
         orderResponse.setItems( toOrderItemResponses( order.getOrderItems() ) );
         orderResponse.setOrderId( order.getId() );
         orderResponse.setRestaurantName( orderRestaurantName( order ) );
+        orderResponse.setCustomerUsername( orderUserUsername( order ) );
         orderResponse.setOrderTime( order.getOrderTime() );
         if ( order.getStatus() != null ) {
             orderResponse.setStatus( order.getStatus().name() );
@@ -81,5 +83,20 @@ public class OrderMapperImpl implements OrderMapper {
             return null;
         }
         return name;
+    }
+
+    private String orderUserUsername(Order order) {
+        if ( order == null ) {
+            return null;
+        }
+        User user = order.getUser();
+        if ( user == null ) {
+            return null;
+        }
+        String username = user.getUsername();
+        if ( username == null ) {
+            return null;
+        }
+        return username;
     }
 }

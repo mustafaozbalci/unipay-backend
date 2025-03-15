@@ -109,11 +109,10 @@ public class OrderService {
     }
 
     // Restoranın Siparişlerini Getirme (Okuma İşlemi)
-    @Transactional(readOnly = true)
     public List<OrderResponse> getOrdersByRestaurant(String restaurantName) {
         logger.info("getOrdersByRestaurant() - Start, restaurantName: {}", restaurantName);
 
-        // Önce RestaurantService üzerinden restoranı buluyoruz
+        // RestaurantService üzerinden restoranı buluyoruz.
         Restaurant restaurant = restaurantService.findRestaurantByName(restaurantName);
         if (restaurant == null) {
             logger.info("No restaurant found with name: {}", restaurantName);
@@ -122,7 +121,7 @@ public class OrderService {
         Long restaurantId = restaurant.getId();
         logger.info("Found restaurant '{}' with id: {}", restaurantName, restaurantId);
 
-        // Restoran id'sine göre siparişleri çekiyoruz
+        // Restoran id'sine göre siparişleri çekiyoruz.
         List<OrderResponse> orders = orderRepository.findByRestaurantId(restaurantId)
                 .stream()
                 .map(orderMapper::toOrderResponse)
