@@ -38,7 +38,7 @@ public class DataLoader implements CommandLineRunner {
         if (!userRepository.existsByEmail("nero@nero.com")) {
             User neroUser = new User();
             neroUser.setUsername("nero");
-            neroUser.setPassword("123456"); // Gerçek uygulamada şifreleri encode etmeyi unutmayın.
+            neroUser.setPassword("$2a$10$KfRFnHTS36Dfft82gm9q.uazfjkXr891b6.LcWyH/h3332YU5llNC"); // Gerçek uygulamada şifreleri encode etmeyi unutmayın.
             neroUser.setEmail("nero@nero.com");
             neroUser.setBalance(0.0);
             userRepository.save(neroUser);
@@ -48,7 +48,7 @@ public class DataLoader implements CommandLineRunner {
         if (!userRepository.existsByEmail("espressolab@espressolab.com")) {
             User espressoUser = new User();
             espressoUser.setUsername("espressolab");
-            espressoUser.setPassword("123456"); // Gerçek uygulamada şifreleri encode etmeyi unutmayın.
+            espressoUser.setPassword("$2a$10$KfRFnHTS36Dfft82gm9q.uazfjkXr891b6.LcWyH/h3332YU5llNC"); // Gerçek uygulamada şifreleri encode etmeyi unutmayın.
             espressoUser.setEmail("espressolab@espressolab.com");
             espressoUser.setBalance(0.0);
             userRepository.save(espressoUser);
@@ -59,7 +59,7 @@ public class DataLoader implements CommandLineRunner {
         if (!userRepository.existsByEmail("mustafa@unipay.com") && !userRepository.existsByUsername("mustafa")) {
             User defaultUser = new User();
             defaultUser.setUsername("mustafa");
-            defaultUser.setPassword("123456");
+            defaultUser.setPassword("$2a$10$KfRFnHTS36Dfft82gm9q.uazfjkXr891b6.LcWyH/h3332YU5llNC");
             defaultUser.setEmail("mustafa@unipay.com");
             defaultUser.setBalance(100000.0);
             userRepository.save(defaultUser);
@@ -70,7 +70,7 @@ public class DataLoader implements CommandLineRunner {
         if (!userRepository.existsByEmail("otopark@otopark.com") && !userRepository.existsByUsername("otopark")) {
             User otoparkUser = new User();
             otoparkUser.setUsername("otopark");
-            otoparkUser.setPassword("123456");
+            otoparkUser.setPassword("$2a$10$KfRFnHTS36Dfft82gm9q.uazfjkXr891b6.LcWyH/h3332YU5llNC");
             otoparkUser.setEmail("otopark@otopark.com");
             otoparkUser.setBalance(0.0);
             userRepository.save(otoparkUser);
