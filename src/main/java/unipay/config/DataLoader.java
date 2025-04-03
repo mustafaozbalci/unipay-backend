@@ -34,7 +34,7 @@ public class DataLoader implements CommandLineRunner {
             System.out.println("Created default restaurant: espressolab");
         }
 
-        // Varsayılan restoran kullanıcılarını oluştur (default password: "password", bakiye: 100.000 TL)
+        // Varsayılan restoran kullanıcıları
         if (!userRepository.existsByEmail("nero@nero.com")) {
             User neroUser = new User();
             neroUser.setUsername("nero");
@@ -55,15 +55,26 @@ public class DataLoader implements CommandLineRunner {
             System.out.println("Created default user for espressolab");
         }
 
-        // Üçüncü default user: Örneğin, "defaultuser"
-        if (!userRepository.existsByEmail("mustafa@unipay.com")&& !userRepository.existsByUsername(("mustafa"))) {
+        // Üçüncü default user: mustafa
+        if (!userRepository.existsByEmail("mustafa@unipay.com") && !userRepository.existsByUsername("mustafa")) {
             User defaultUser = new User();
             defaultUser.setUsername("mustafa");
-            defaultUser.setPassword("123456"); // Şifreleri encode etmek tavsiye edilir.
+            defaultUser.setPassword("123456");
             defaultUser.setEmail("mustafa@unipay.com");
             defaultUser.setBalance(100000.0);
             userRepository.save(defaultUser);
             System.out.println("Created default user: mustafa");
+        }
+
+        // Yeni default user: otopark
+        if (!userRepository.existsByEmail("otopark@otopark.com") && !userRepository.existsByUsername("otopark")) {
+            User otoparkUser = new User();
+            otoparkUser.setUsername("otopark");
+            otoparkUser.setPassword("123456");
+            otoparkUser.setEmail("otopark@otopark.com");
+            otoparkUser.setBalance(0.0);
+            userRepository.save(otoparkUser);
+            System.out.println("Created default user: otopark");
         }
     }
 }
