@@ -3,8 +3,11 @@ package unipay.config;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
+import unipay.entity.ParkingArea;
+import unipay.entity.ParkingStatus;
 import unipay.entity.Restaurant;
 import unipay.entity.User;
+import unipay.repository.ParkingAreaRepository;
 import unipay.repository.RestaurantRepository;
 import unipay.repository.UserRepository;
 
@@ -16,6 +19,8 @@ public class DataLoader implements CommandLineRunner {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private ParkingAreaRepository parkingAreaRepository;
 
     @Override
     public void run(String... args) throws Exception {
@@ -75,6 +80,36 @@ public class DataLoader implements CommandLineRunner {
             otoparkUser.setBalance(0.0);
             userRepository.save(otoparkUser);
             System.out.println("Created default user: otopark");
+        }
+        if (parkingAreaRepository.count() == 0) {
+            parkingAreaRepository.save(
+                    ParkingArea.builder()
+                            .name("Kız Yurdu Otoparkı")
+                            .status(ParkingStatus.AVAILABLE)
+                            .topPercent("78%")
+                            .leftPercent("12%")
+                            .build()
+            );
+
+            parkingAreaRepository.save(
+                    ParkingArea.builder()
+                            .name("Ana Otopark")
+                            .status(ParkingStatus.FULL)
+                            .topPercent("62%")
+                            .leftPercent("65%")
+                            .build()
+            );
+
+            parkingAreaRepository.save(
+                    ParkingArea.builder()
+                            .name("Amfi Otoparkı")
+                            .status(ParkingStatus.CLOSED)
+                            .topPercent("20%")
+                            .leftPercent("90%")
+                            .build()
+            );
+
+            System.out.println("Default parking areas created.");
         }
     }
 }

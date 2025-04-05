@@ -38,7 +38,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 // 4) Yetkilendirme Kuralları
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/**","/api/orders/**","/api/restaurants/**").permitAll().requestMatchers("/api/payment/**").authenticated().anyRequest().authenticated());
+                .authorizeHttpRequests(auth -> auth.requestMatchers("/api/parking-areas/**","/api/auth/**","/api/orders/**","/api/restaurants/**").permitAll().requestMatchers("/api/payment/**").authenticated().anyRequest().authenticated());
 
         // 5) JWT filtremizi Security zincirine ekliyoruz
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

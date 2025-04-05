@@ -3,6 +3,7 @@ C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\service\
 C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\dto\UserAddBalanceRequest.java
 C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\entity\User.java
 C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\dto\UserRegisterRequest.java
+C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\entity\ParkingStatus.java
 C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\security\SecurityConfig.java
 C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\dto\OrderRequest.java
 C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\config\GlobalCorsConfig.java
@@ -20,12 +21,15 @@ C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\dto\Rest
 C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\service\UserService.java
 C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\security\JWTAuthenticationFilter.java
 C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\controller\RestaurantController.java
+C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\repository\ParkingAreaRepository.java
 C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\exception\RestaurantNotFoundException.java
 C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\exception\GlobalExceptionHandler.java
 C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\mapper\RestaurantMapper.java
 C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\repository\OrderItemRepository.java
 C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\entity\OrderItem.java
+C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\entity\ParkingArea.java
 C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\repository\OrderRepository.java
+C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\service\ParkingAreaService.java
 C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\dto\AuthenticationResponse.java
 C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\dto\OrderUpdateRequest.java
 C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\security\CustomUserDetailsService.java
@@ -41,6 +45,7 @@ C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\reposito
 C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\dto\UserResponse.java
 C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\exception\UserNotFoundException.java
 C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\security\JWTUtil.java
+C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\controller\ParkingAreaController.java
 C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\controller\PaymentController.java
 C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\dto\RestaurantResponse.java
 C:\Users\mustafa\Desktop\masaüstü\unipay-backend\src\main\java\unipay\dto\RestaurantCreateRequest.java
