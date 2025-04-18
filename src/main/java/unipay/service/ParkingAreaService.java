@@ -15,8 +15,12 @@ import java.util.Optional;
 @Service
 public class ParkingAreaService {
 
-    @Autowired
-    private ParkingAreaRepository repository;
+
+    private final ParkingAreaRepository repository;
+
+    public ParkingAreaService(ParkingAreaRepository repository) {
+        this.repository = repository;
+    }
 
     public List<ParkingArea> getAll() {
         return repository.findAll();
