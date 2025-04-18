@@ -7,7 +7,7 @@ import unipay.entity.User;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-04-03T20:21:00+0300",
+    date = "2025-04-07T20:20:03+0300",
     comments = "version: 1.5.3.Final, compiler: javac, environment: Java 17.0.12 (Oracle Corporation)"
 )
 @Component
