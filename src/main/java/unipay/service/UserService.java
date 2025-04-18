@@ -208,4 +208,15 @@ public class UserService {
         logger.info("User balance updated. New balance: {}", user.getBalance());
         logger.info("checkAndDecreaseBalance() - End");
     }
+    // Yeni metod: Sipariş reddedildiğinde kullanıcı bakiyesini iade et
+    @Transactional
+    public void refundBalance(Long userId, double amount) {
+        logger.info("refundBalance() - Start, userId: {}, amount: {}", userId, amount);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
+        double newBalance = user.getBalance() + amount;
+        user.setBalance(newBalance);
+        userRepository.save(user);
+        logger.info("Refund complete. New balance for user {}: {}", userId, newBalance);
+    }
 }

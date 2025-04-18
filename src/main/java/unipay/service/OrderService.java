@@ -96,8 +96,16 @@ public class OrderService {
         });
 
         OrderStatus oldStatus = order.getStatus();
+        OrderStatus newStatus = orderUpdateRequest.getStatus();
         order.setStatus(orderUpdateRequest.getStatus());
         order.setEstimatedPreparationTime(orderUpdateRequest.getEstimatedPreparationTime());
+
+        // Eğer sipariş REJECTED ise, kullanıcıya iade yap
+        if (newStatus == OrderStatus.REJECTED && oldStatus != OrderStatus.REJECTED) {
+            double refundAmount = order.getTotalAmount();
+            logger.info("Order ID {} is rejected. Refunding amount {} to user {}.", order.getId(), refundAmount, order.getUser().getId());
+            userService.refundBalance(order.getUser().getId(), refundAmount);
+        }
 
         Order updatedOrder = orderRepository.save(order);
         logger.info("Order status updated successfully for order ID: {}. Old status: {}, New status: {}",
