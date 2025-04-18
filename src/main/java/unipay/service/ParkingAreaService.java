@@ -2,7 +2,6 @@
 package unipay.service;
 
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import unipay.entity.ParkingArea;
@@ -34,6 +33,7 @@ public class ParkingAreaService {
         });
         return areaOpt;
     }
+
     // Her gece saat 22:00'de çalışır → tüm otoparkları KAPALI yap
     @Scheduled(cron = "0 0 22 * * *", zone = "Europe/Istanbul")
     @Transactional
