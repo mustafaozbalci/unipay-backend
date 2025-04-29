@@ -1,44 +1,46 @@
+// src/main/java/unipay/security/CustomUserDetailsService.java
 package unipay.security;
 
-import unipay.entity.User;
-import unipay.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.*;
-import org.springframework.stereotype.Service;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+import unipay.entity.User;
+import unipay.repository.RestaurantRepository;
+import unipay.repository.UserRepository;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
     private static final Logger logger = LoggerFactory.getLogger(CustomUserDetailsService.class);
+    private final UserRepository userRepo;
+    private final RestaurantRepository restaurantRepo;
 
-    @Autowired
-    private UserRepository userRepository;
+    public CustomUserDetailsService(UserRepository userRepo, RestaurantRepository restaurantRepo) {
+        this.userRepo = userRepo;
+        this.restaurantRepo = restaurantRepo;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        logger.info("loadUserByUsername() - Start, username: {}", username);
+        User user = userRepo.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 
-        logger.info("Attempting to find user in database for username: {}", username);
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> {
-                    logger.error("User not found with username: {}", username);
-                    return new UsernameNotFoundException("User not found with username: " + username);
-                });
-
-        logger.info("User found: {} (ID: {})", user.getUsername(), user.getId());
-
-        UserDetails userDetails = new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
-                user.getPassword(),
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
-        );
-
-        logger.info("loadUserByUsername() - End, returning UserDetails with username: {}", userDetails.getUsername());
-        return userDetails;
+        List<SimpleGrantedAuthority> auths = new ArrayList<>();
+        auths.add(new SimpleGrantedAuthority("ROLE_USER"));
+        if ("otopark@otopark.com".equalsIgnoreCase(user.getEmail())) {
+            auths.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+            logger.info("Granted ADMIN to '{}'", username);
+        }
+        if (restaurantRepo.findByName(username) != null) {
+            auths.add(new SimpleGrantedAuthority("ROLE_RESTAURANT"));
+            logger.info("Granted RESTAURANT to '{}'", username);
+        }
+        return new org.springframework.security.core.userdetails.User(username, user.getPassword(), auths);
     }
 }

@@ -19,6 +19,8 @@ public class ParkingArea {
 
     @Enumerated(EnumType.STRING)
     private ParkingStatus status;
+    @Column(nullable = false)
+    private Integer capacity;
 
     private String topPercent;
     private String leftPercent;

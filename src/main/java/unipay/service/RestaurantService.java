@@ -1,12 +1,13 @@
+// src/main/java/unipay/service/RestaurantService.java
 package unipay.service;
 
-import unipay.entity.Restaurant;
-import unipay.exception.RestaurantNotFoundException;
-import unipay.repository.RestaurantRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import unipay.entity.Restaurant;
+import unipay.exception.RestaurantNotFoundException;
+import unipay.repository.RestaurantRepository;
 
 import java.util.List;
 
@@ -14,87 +15,52 @@ import java.util.List;
 public class RestaurantService {
 
     private static final Logger logger = LoggerFactory.getLogger(RestaurantService.class);
-    private final RestaurantRepository restaurantRepository;
+    private final RestaurantRepository repository;
 
-    public RestaurantService(RestaurantRepository restaurantRepository) {
-        this.restaurantRepository = restaurantRepository;
+    public RestaurantService(RestaurantRepository repository) {
+        this.repository = repository;
     }
 
-    // Tüm restoranları listeleme (Okuma İşlemi)
     @Transactional(readOnly = true)
     public List<Restaurant> getAllRestaurants() {
-        logger.info("getAllRestaurants() - Start");
-        logger.info("Fetching all restaurants");
-        List<Restaurant> restaurants = restaurantRepository.findAll();
-        logger.info("Fetched {} restaurants", restaurants.size());
-        logger.info("getAllRestaurants() - End");
-        return restaurants;
+        logger.info("Listing all restaurants");
+        return repository.findAll();
     }
 
-    // Restoran ID ile getirme (Okuma İşlemi)
     @Transactional(readOnly = true)
     public Restaurant getRestaurantById(Long id) {
-        logger.info("getRestaurantById() - Start, restaurantId: {}", id);
-        logger.info("Fetching restaurant with ID: {}", id);
-        Restaurant restaurant = restaurantRepository.findById(id)
-                .orElseThrow(() -> {
-                    logger.error("Restaurant not found with ID: {}", id);
-                    return new RestaurantNotFoundException("Restaurant not found with ID: " + id);
-                });
-        logger.info("Restaurant fetched successfully: {}", restaurant.getName());
-        logger.info("getRestaurantById() - End");
-        return restaurant;
+        logger.info("Getting restaurant id={}", id);
+        return repository.findById(id).orElseThrow(() -> new RestaurantNotFoundException("Restaurant not found: " + id));
     }
 
-    // Yeni restoran ekleme (Yazma İşlemi)
     @Transactional
     public Restaurant addRestaurant(String name) {
-        logger.info("addRestaurant() - Start, name: {}", name);
-        logger.info("Adding new restaurant with name: {}", name);
-        Restaurant restaurant = new Restaurant();
-        restaurant.setName(name);
-        Restaurant savedRestaurant = restaurantRepository.save(restaurant);
-        logger.info("Restaurant added successfully with ID: {}", savedRestaurant.getId());
-        logger.info("addRestaurant() - End");
-        return savedRestaurant;
+        logger.info("Adding restaurant '{}'", name);
+        Restaurant saved = repository.save(new Restaurant(null, name));
+        logger.info("Added restaurant id={}", saved.getId());
+        return saved;
     }
 
-    // Restoran adı güncelleme (Yazma İşlemi)
     @Transactional
     public Restaurant updateRestaurant(Long id, String name) {
-        logger.info("updateRestaurant() - Start, id: {}, name: {}", id, name);
-        logger.info("Updating restaurant with ID: {}", id);
-
-        Restaurant existingRestaurant = restaurantRepository.findById(id)
-                .orElseThrow(() -> {
-                    logger.error("Restaurant not found with ID: {}", id);
-                    return new RestaurantNotFoundException("Restaurant not found with ID: " + id);
-                });
-        String oldName = existingRestaurant.getName();
-        existingRestaurant.setName(name);
-        Restaurant updatedRestaurant = restaurantRepository.save(existingRestaurant);
-        logger.info("Restaurant updated successfully. Old name: {}, New name: {}", oldName, updatedRestaurant.getName());
-
-        logger.info("updateRestaurant() - End");
-        return updatedRestaurant;
+        logger.info("Updating restaurant id={} to '{}'", id, name);
+        Restaurant existing = getRestaurantById(id);
+        String oldName = existing.getName();
+        existing.setName(name);
+        Restaurant updated = repository.save(existing);
+        logger.info("Restaurant id={} renamed '{}'→'{}'", id, oldName, updated.getName());
+        return updated;
     }
 
-    // Restoran silme (Yazma İşlemi)
     @Transactional
     public void deleteRestaurant(Long id) {
-        logger.info("deleteRestaurant() - Start, id: {}", id);
-        logger.info("Deleting restaurant with ID: {}", id);
-        Restaurant restaurant = restaurantRepository.findById(id)
-                .orElseThrow(() -> {
-                    logger.error("Restaurant not found with ID: {}", id);
-                    return new RestaurantNotFoundException("Restaurant not found with ID: " + id);
-                });
-        restaurantRepository.delete(restaurant);
-        logger.info("Restaurant with ID: {} deleted successfully", id);
-        logger.info("deleteRestaurant() - End");
+        logger.info("Deleting restaurant id={}", id);
+        getRestaurantById(id);
+        repository.deleteById(id);
+        logger.info("Deleted restaurant id={}", id);
     }
+
     public Restaurant findRestaurantByName(String name) {
-        // Örneğin, findByName metodu repository'de tanımlı olsun
-        return restaurantRepository.findByName(name);
+        return repository.findByName(name);
     }
 }

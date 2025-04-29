@@ -1,13 +1,13 @@
 package unipay.service;
 
-import unipay.dto.PaymentCardDTO;
-import unipay.dto.PaymentDepositRequestDTO;
 import com.iyzipay.Options;
 import com.iyzipay.model.*;
 import com.iyzipay.request.CreatePaymentRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import unipay.dto.PaymentCardDTO;
+import unipay.dto.PaymentDepositRequestDTO;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
@@ -34,18 +34,13 @@ public class IyzicoPaymentService {
      * 3) Iyzico'ya istek gönder
      */
     public Payment depositMoney(PaymentDepositRequestDTO dto) throws Exception {
-        logger.info("depositMoney() - Start, depositRequestDTO: {}", dto);
-
-        validatePrices(dto.getPrice(), dto.getPaidPrice());
-        CreatePaymentRequest request = mapToCreatePaymentRequest(dto);
-
-        logger.info("Calling Iyzico Payment.create(...)");
-        Payment payment = Payment.create(request, options);
-
-        logger.info("Iyzico Payment result: status={}, conversationId={}, errorMessage={}",
-                payment.getStatus(), payment.getConversationId(), payment.getErrorMessage());
-
-        logger.info("depositMoney() - End");
+        logger.info("Starting deposit: {}", dto.getPrice());
+        Payment payment = Payment.create(mapToCreatePaymentRequest(dto), options);
+        if ("SUCCESS".equalsIgnoreCase(payment.getStatus())) {
+            logger.info("Deposit successful: conversationId={}", payment.getConversationId());
+        } else {
+            logger.warn("Deposit failed: {}", payment.getErrorMessage());
+        }
         return payment;
     }
 
@@ -58,8 +53,7 @@ public class IyzicoPaymentService {
             throw new IllegalArgumentException("price ve paidPrice zorunludur.");
         }
         if (price.compareTo(paidPrice) != 0) {
-            logger.error("Gönderilen tutar, tüm kırılımların toplam tutarına eşit değil. Price: {}, PaidPrice: {}",
-                    price, paidPrice);
+            logger.error("Gönderilen tutar, tüm kırılımların toplam tutarına eşit değil. Price: {}, PaidPrice: {}", price, paidPrice);
             throw new IllegalArgumentException("Gönderilen tutar, tüm kırılımların toplam tutarına eşit olmalıdır.");
         }
 

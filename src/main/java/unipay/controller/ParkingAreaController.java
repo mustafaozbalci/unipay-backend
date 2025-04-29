@@ -1,17 +1,16 @@
 // src/main/java/unipay/controller/ParkingAreaController.java
 package unipay.controller;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import unipay.entity.ParkingArea;
 import unipay.service.ParkingAreaService;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/parking-areas")
 public class ParkingAreaController {
-
 
     private final ParkingAreaService service;
 
@@ -25,8 +24,9 @@ public class ParkingAreaController {
     }
 
     @PutMapping("/{id}")
-    public Optional<ParkingArea> updateStatus(@PathVariable Long id, @RequestBody String newStatus // örn: "FULL"
+    public ResponseEntity<ParkingArea> updateStatus(@PathVariable Long id, @RequestBody String newStatus  // örn: "FULL"
     ) {
-        return service.updateStatus(id, newStatus.replace("\"", "")); // JSON string temizliği
+        ParkingArea updated = service.updateStatus(id, newStatus.replace("\"", ""));
+        return ResponseEntity.ok(updated);
     }
 }

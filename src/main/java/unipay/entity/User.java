@@ -30,4 +30,7 @@ public class User {
 
     @Column(nullable = false)
     private Double balance = 0.0;
+
+    @Column(nullable = true)
+    private String plate;
 }

@@ -1,6 +1,7 @@
 package unipay.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import unipay.dto.RestaurantCreateRequest;
 import unipay.dto.RestaurantNameUpdateRequest;
@@ -21,6 +22,7 @@ public class RestaurantController {
     }
 
     // Tüm restoranları listeleme
+    @PreAuthorize("permitAll()")
     @PostMapping("/list")
     public ResponseEntity<List<String>> getAllRestaurants() {
         List<String> restaurantNames = restaurantService.getAllRestaurants().stream().map(Restaurant::getName).collect(Collectors.toList());
@@ -28,6 +30,7 @@ public class RestaurantController {
     }
 
     // Yeni restoran ekleme
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/add")
     public ResponseEntity<String> addRestaurant(@RequestBody RestaurantCreateRequest request) {
         Restaurant restaurant = restaurantService.addRestaurant(request.getName());
@@ -35,6 +38,7 @@ public class RestaurantController {
     }
 
     // Restoran adı güncelleme
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/update/{id}")
     public ResponseEntity<String> updateRestaurant(@PathVariable Long id, @RequestBody RestaurantNameUpdateRequest request) {
         Restaurant updatedRestaurant = restaurantService.updateRestaurant(id, request.getName());
@@ -42,6 +46,7 @@ public class RestaurantController {
     }
 
     // Restoran silme
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/delete/{id}")
     public ResponseEntity<String> deleteRestaurant(@PathVariable Long id) {
         restaurantService.deleteRestaurant(id);

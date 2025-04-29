@@ -1,17 +1,19 @@
+// src/main/java/unipay/security/JWTAuthenticationFilter.java
 package unipay.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -27,57 +29,36 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     private CustomUserDetailsService customUserDetailsService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        logger.info("JWTAuthenticationFilter - doFilterInternal() START. Request URI: {}", request.getRequestURI());
-
-        final String authHeader = request.getHeader("Authorization");
-        String username = null;
-        String token = null;
+        String uri = request.getRequestURI();
+        String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7);
+            String token = authHeader.substring(7);
+            String username = null;
             try {
-                logger.info("JWT token detected. Extracting username...");
                 username = jwtUtil.extractUsername(token);
-                logger.info("Username extracted: {}", username);
-            } catch (Exception e) {
-                logger.error("Error while extracting username from token: {}", e.getMessage(), e);
-                // Burada isterseniz response'a 401 veya 403 gönderebilirsiniz
-                // response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT token");
+            } catch (Exception ex) {
+                logger.warn("Failed to extract username from JWT for URI {}: {}", uri, ex.getMessage());
+            }
+
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+
+                if (jwtUtil.validateToken(token, userDetails.getUsername())) {
+                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                    logger.debug("Authenticated '{}' for {}", username, uri);
+                } else {
+                    logger.warn("Invalid JWT token for user '{}' on {}", username, uri);
+                }
             }
         } else {
-            logger.info("No valid Authorization header found (or doesn't start with 'Bearer ')");
+            logger.debug("No Bearer token provided for {}", uri);
         }
 
-        // SecurityContext'te henüz auth yoksa ve username mevcutsa
-        if (username != null && org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication() == null) {
-            logger.info("Loading user details from DB for username: {}", username);
-            UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
-
-            logger.info("Validating token...");
-            if (jwtUtil.validateToken(token, userDetails.getUsername())) {
-                logger.info("Token is valid. Setting security context for user: {}", username);
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.getAuthorities()
-                        );
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(authentication);
-            } else {
-                logger.warn("Token validation failed for user: {}", username);
-                // Burada opsiyonel olarak response'a hata fırlatılabilir
-                // response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token validation failed");
-            }
-        }
-
-        // Devam et
         filterChain.doFilter(request, response);
-
-        logger.info("JWTAuthenticationFilter - doFilterInternal() END.");
     }
 }

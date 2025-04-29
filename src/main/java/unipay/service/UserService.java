@@ -1,3 +1,4 @@
+// src/main/java/unipay/service/UserService.java
 package unipay.service;
 
 import org.slf4j.Logger;
@@ -23,200 +24,115 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
 
-    // Constructor
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
     }
 
-    // KULLANICI KAYDI
     @Transactional
-    public UserResponse registerUser(UserRegisterRequest registerRequest) {
-        logger.info("registerUser() - Start, registerRequest: {}", registerRequest);
-
-        logger.info("Registering user with username: {}", registerRequest.getUsername());
-
-        if (userRepository.findByUsername(registerRequest.getUsername()).isPresent()) {
-            logger.error("Username already exists: {}", registerRequest.getUsername());
+    public UserResponse registerUser(UserRegisterRequest req) {
+        logger.info("Registering user '{}'", req.getUsername());
+        if (userRepository.findByUsername(req.getUsername()).isPresent()) {
             throw new UsernameAlreadyExistsException("Username already exists");
         }
-
-        if (userRepository.findByEmail(registerRequest.getEmail()).isPresent()) {
-            logger.error("Email already exists: {}", registerRequest.getEmail());
+        if (userRepository.findByEmail(req.getEmail()).isPresent()) {
             throw new EmailAlreadyExistsException("Email already exists");
         }
 
-        // Yeni user oluşturma
         User user = new User();
-        user.setUsername(registerRequest.getUsername());
-        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        user.setEmail(registerRequest.getEmail());
-        user.setStudentNumber(registerRequest.getStudentNumber());
-        user.setBalance(0.0);
-
-        User savedUser = userRepository.save(user);
-        logger.info("User registered successfully with username: {}", savedUser.getUsername());
-
-        // MapStruct ile dönüşüm
-        UserResponse response = userMapper.toUserResponse(savedUser);
-        logger.info("registerUser() - End, userResponse: {}", response);
-        return response;
+        user.setUsername(req.getUsername());
+        user.setPassword(passwordEncoder.encode(req.getPassword()));
+        user.setEmail(req.getEmail());
+        user.setStudentNumber(req.getStudentNumber());
+        if (req.getPlate() != null) {
+            user.setPlate(req.getPlate().trim().toUpperCase());
+        }
+        User saved = userRepository.save(user);
+        logger.info("User '{}' registered", saved.getUsername());
+        return userMapper.toUserResponse(saved);
     }
 
-    // KULLANICI GİRİŞİ
     @Transactional(readOnly = true)
-    public UserResponse loginUser(UserLoginRequest loginRequest) {
-        logger.info("loginUser() - Start, loginRequest: {}", loginRequest);
-        logger.info("User login attempt for email: {}", loginRequest.getEmail());
-
-        User user = userRepository.findByEmail(loginRequest.getEmail()).orElseThrow(() -> {
-            logger.error("User not found with email: {}", loginRequest.getEmail());
-            return new UserNotFoundException("User not found");
-        });
-
-        // Parola eşleşmesi
-        if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            logger.info("User login successful for email: {}", user.getEmail());
-            UserResponse response = userMapper.toUserResponse(user);
-            logger.info("loginUser() - End, userResponse: {}", response);
-            return response;
-        } else {
-            logger.error("Invalid credentials for email: {}", loginRequest.getEmail());
+    public UserResponse loginUser(UserLoginRequest req) {
+        logger.info("Authenticating '{}'", req.getEmail());
+        User user = userRepository.findByEmail(req.getEmail()).orElseThrow(() -> new UserNotFoundException("User not found"));
+        if (!passwordEncoder.matches(req.getPassword(), user.getPassword())) {
+            logger.warn("Authentication failed for '{}'", req.getEmail());
             throw new RuntimeException("Invalid credentials");
         }
+        logger.info("Authentication successful for '{}'", req.getEmail());
+        return userMapper.toUserResponse(user);
     }
 
-    // KULLANICIYI username İLE BULMA (iç kullanım)
     @Transactional(readOnly = true)
     public User getUserByUsername(String username) {
-        logger.info("getUserByUsername() - Start, username: {}", username);
-        logger.info("Fetching user with username: {}", username);
-        User user = userRepository.findByUsername(username).orElseThrow(() -> {
-            logger.error("User not found with username: {}", username);
-            return new UserNotFoundException("User not found with username: " + username);
-        });
-        logger.info("getUserByUsername() - End, userId: {}", user.getId());
-        return user;
+        logger.debug("Fetching user by username '{}'", username);
+        return userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User not found: " + username));
     }
 
     @Transactional(readOnly = true)
     public User getUserById(Long id) {
-        logger.info("getUserById() - Start, userId: {}", id);
-        logger.info("Fetching user with id: {}", id);
-        User user = userRepository.findById(id).orElseThrow(() -> {
-            logger.error("User not found with id: {}", id);
-            return new UserNotFoundException("User not found with id: " + id);
-        });
-        logger.info("getUserById() - End, foundUsername: {}", user.getUsername());
-        return user;
+        logger.debug("Fetching user by id {}", id);
+        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found: " + id));
     }
 
-    // KULLANICI DETAYLARI
     @Transactional(readOnly = true)
     public UserResponse getUserDetails(String username) {
-        logger.info("getUserDetails() - Start, username: {}", username);
-        logger.info("Fetching details for user with username: {}", username);
+        logger.info("Retrieving details for '{}'", username);
+        return userMapper.toUserResponse(getUserByUsername(username));
+    }
 
+    @Transactional
+    public UserResponse updateUserPassword(String username, UserPasswordUpdateRequest req) {
+        logger.info("Updating password for '{}'", username);
         User user = getUserByUsername(username);
-        UserResponse response = userMapper.toUserResponse(user);
-
-        logger.info("getUserDetails() - End, userResponse: {}", response);
-        return response;
+        user.setPassword(passwordEncoder.encode(req.getNewPassword()));
+        User updated = userRepository.save(user);
+        logger.info("Password updated for '{}'", username);
+        return userMapper.toUserResponse(updated);
     }
 
-    // YENİ METOT: Kullanıcının sadece şifresini güncelleme
     @Transactional
-    public UserResponse updateUserPassword(String username, UserPasswordUpdateRequest passwordRequest) {
-        logger.info("updateUserPassword() - Start, username: {}, passwordRequest: {}", username, passwordRequest);
-
-        User user = userRepository.findByUsername(username).orElseThrow(() -> {
-            logger.error("User not found with username: {}", username);
-            return new UserNotFoundException("User not found with username: " + username);
-        });
-
-        // Yalnızca şifre güncelleniyor
-        user.setPassword(passwordEncoder.encode(passwordRequest.getNewPassword()));
-
-        User updatedUser = userRepository.save(user);
-        logger.info("User password updated successfully for username: {}", updatedUser.getUsername());
-
-        UserResponse response = userMapper.toUserResponse(updatedUser);
-        logger.info("updateUserPassword() - End, updatedUserResponse: {}", response);
-
-        return response;
+    public UserResponse addBalance(String username, UserAddBalanceRequest req) {
+        logger.info("Adding {} to '{}'", req.getAmountToAdd(), username);
+        User user = getUserByUsername(username);
+        double newBal = user.getBalance() + req.getAmountToAdd();
+        user.setBalance(newBal);
+        User updated = userRepository.save(user);
+        logger.info("New balance for '{}': {}", username, updated.getBalance());
+        return userMapper.toUserResponse(updated);
     }
 
-    // YENİ METOT: Kullanıcının sadece bakiyesini güncelleme (set etme)
     @Transactional
-    public UserResponse addBalance(String username, UserAddBalanceRequest addBalanceRequest) {
-        logger.info("addBalance() - Start, username: {}, addBalanceRequest: {}", username, addBalanceRequest);
-
-        User user = userRepository.findByUsername(username).orElseThrow(() -> {
-            logger.error("User not found with username: {}", username);
-            return new UserNotFoundException("User not found with username: " + username);
-        });
-
-        double oldBalance = user.getBalance();
-        double newBalance = oldBalance + addBalanceRequest.getAmountToAdd();
-        user.setBalance(newBalance);
-
-        User updatedUser = userRepository.save(user);
-        logger.info("User balance updated. Old balance: {}, Amount to add: {}, New balance: {}", oldBalance, addBalanceRequest.getAmountToAdd(), newBalance);
-
-        UserResponse response = userMapper.toUserResponse(updatedUser);
-        logger.info("addBalance() - End, updatedUserResponse: {}", response);
-
-        return response;
-    }
-
-
-    // PARA EKLEMEK İÇİN BASİT BİR METOT (Opsiyonel)
-    // Bu metod "mevcut bakiyeye amountToAdd ekleme" mantığında çalışıyor
-    // Yukarıdaki updateUserBalance ile farkı: Birebir set etmek yerine ekleme yapıyor.
-    @Transactional
-    public void updateUserBalance(String username, Double amountToAdd) {
-        logger.info("updateUserBalance(Double) - Start, username: {}, amountToAdd: {}", username, amountToAdd);
-
-        User user = userRepository.findByUsername(username).orElseThrow(() -> {
-            logger.error("User not found with username: {}", username);
-            return new UserNotFoundException("User not found with username: " + username);
-        });
-
-        double oldBalance = user.getBalance();
-        user.setBalance(oldBalance + amountToAdd);
+    public void updateUserBalance(String username, Double amount) {
+        logger.debug("Updating balance by {} for '{}'", amount, username);
+        User user = getUserByUsername(username);
+        double newBal = user.getBalance() + amount;
+        user.setBalance(newBal);
         userRepository.save(user);
-
-        logger.info("User balance updated. Old balance: {}, New balance: {}", oldBalance, user.getBalance());
-        logger.info("updateUserBalance(Double) - End");
+        logger.debug("Balance updated for '{}': {}", username, newBal);
     }
 
     @Transactional
     public void checkAndDecreaseBalance(Long userId, double amount) {
-        logger.info("checkAndDecreaseBalance() - Start, userId: {}, amount: {}", userId, amount);
-
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
-
-        logger.info("Current balance: {}. Amount to decrease: {}", user.getBalance(), amount);
+        logger.info("Checking balance for userId={} amount={}", userId, amount);
+        User user = getUserById(userId);
         if (user.getBalance() < amount) {
-            logger.error("Insufficient balance for user with ID: {}. Required: {}, Available: {}", userId, amount, user.getBalance());
-            throw new BalanceNotEnoughException("Insufficient balance to place this order.");
+            logger.warn("Insufficient balance for userId={}", userId);
+            throw new BalanceNotEnoughException("Insufficient balance");
         }
-        // Bakiye yeterliyse düş
         user.setBalance(user.getBalance() - amount);
         userRepository.save(user);
-        logger.info("User balance updated. New balance: {}", user.getBalance());
-        logger.info("checkAndDecreaseBalance() - End");
+        logger.info("Balance decreased for userId={}. New balance={}", userId, user.getBalance());
     }
-    // Yeni metod: Sipariş reddedildiğinde kullanıcı bakiyesini iade et
+
     @Transactional
     public void refundBalance(Long userId, double amount) {
-        logger.info("refundBalance() - Start, userId: {}, amount: {}", userId, amount);
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
-        double newBalance = user.getBalance() + amount;
-        user.setBalance(newBalance);
+        logger.info("Refunding {} to userId={}", amount, userId);
+        User user = getUserById(userId);
+        user.setBalance(user.getBalance() + amount);
         userRepository.save(user);
-        logger.info("Refund complete. New balance for user {}: {}", userId, newBalance);
+        logger.info("Refund complete for userId={}. New balance={}", userId, user.getBalance());
     }
 }

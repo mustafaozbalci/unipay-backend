@@ -1,13 +1,16 @@
 unipay\exception\UsernameAlreadyExistsException.class
 unipay\service\ParkingAreaService.class
 unipay\controller\PaymentController.class
+unipay\dto\ParkingSessionDto.class
 unipay\entity\ParkingStatus.class
 unipay\service\IyzicoPaymentService.class
 unipay\dto\OrderItemResponse.class
 unipay\controller\OrderController.class
 unipay\dto\RestaurantResponse.class
 unipay\repository\UserRepository.class
+unipay\service\ParkingService.class
 unipay\controller\RestaurantController.class
+unipay\repository\ParkingSessionRepository.class
 unipay\dto\UserRegisterRequest.class
 unipay\mapper\OrderMapper.class
 unipay\exception\EmailAlreadyExistsException.class
@@ -16,6 +19,7 @@ unipay\security\SecurityConfig.class
 unipay\repository\ParkingAreaRepository.class
 unipay\dto\UserAddBalanceRequest.class
 unipay\service\OrderService.class
+unipay\entity\ParkingSession.class
 unipay\dto\OrderUpdateRequest.class
 unipay\entity\OrderStatus.class
 unipay\dto\RestaurantCreateRequest.class
@@ -36,6 +40,7 @@ unipay\entity\Restaurant.class
 unipay\entity\ParkingArea$ParkingAreaBuilder.class
 unipay\repository\RestaurantRepository.class
 unipay\mapper\RestaurantMapper.class
+unipay\mapper\ParkingMapper.class
 unipay\entity\Order.class
 unipay\dto\PaymentDepositRequestDTO.class
 unipay\dto\UserOrdersRequest.class
@@ -50,12 +55,14 @@ unipay\mapper\UserMapperImpl.class
 unipay\exception\UserNotFoundException.class
 unipay\dto\UserResponse.class
 unipay\repository\OrderRepository.class
+unipay\mapper\ParkingMapperImpl.class
 unipay\repository\OrderItemRepository.class
 unipay\security\CustomUserDetailsService.class
 unipay\exception\OrderNotFoundException.class
 unipay\dto\OrderItemRequest.class
 unipay\dto\RestaurantOrdersRequest.class
 unipay\UnipayApplication.class
+unipay\controller\ParkingController.class
 unipay\dto\UserPasswordUpdateRequest.class
 unipay\dto\PaymentCardDTO.class
 unipay\exception\RestaurantNotFoundException.class

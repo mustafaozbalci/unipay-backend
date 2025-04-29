@@ -1,3 +1,4 @@
+// src/main/java/unipay/dto/UserResponse.java
 package unipay.dto;
 
 import lombok.Data;
@@ -8,4 +9,7 @@ public class UserResponse {
     private String username;
     private String email;
     private Double balance;
+
+    // Yeni eklenen plaka alanı
+    private String plate;
 }

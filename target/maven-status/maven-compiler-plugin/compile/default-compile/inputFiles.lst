@@ -24,10 +24,12 @@ C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\controller\P
 C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\dto\RestaurantResponse.java
 C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\config\DataLoader.java
 C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\exception\RestaurantNotFoundException.java
+C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\mapper\ParkingMapper.java
 C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\UnipayApplication.java
 C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\entity\User.java
 C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\repository\RestaurantRepository.java
 C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\dto\UserRegisterRequest.java
+C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\service\ParkingService.java
 C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\entity\ParkingStatus.java
 C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\dto\PaymentCardDTO.java
 C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\repository\UserRepository.java
@@ -36,9 +38,11 @@ C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\service\Park
 C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\dto\RestaurantOrdersRequest.java
 C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\mapper\UserMapper.java
 C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\security\JWTAuthenticationFilter.java
+C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\dto\ParkingSessionDto.java
 C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\exception\EmailAlreadyExistsException.java
 C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\controller\UserController.java
 C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\dto\OrderUpdateRequest.java
+C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\controller\ParkingController.java
 C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\entity\ParkingArea.java
 C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\service\IyzicoPaymentService.java
 C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\entity\Order.java
@@ -48,7 +52,9 @@ C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\dto\UserPass
 C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\exception\UserNotFoundException.java
 C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\dto\OrderRequest.java
 C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\dto\OrderItemRequest.java
+C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\entity\ParkingSession.java
 C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\exception\BalanceNotEnoughException.java
+C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\repository\ParkingSessionRepository.java
 C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\dto\UserResponse.java
 C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\mapper\RestaurantMapper.java
 C:\Users\mozba\Desktop\Projects\unipay-backend\src\main\java\unipay\config\IyzicoConfig.java

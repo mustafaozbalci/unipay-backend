@@ -1,7 +1,9 @@
+// src/main/java/unipay/dto/UserRegisterRequest.java
 package unipay.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -22,4 +24,7 @@ public class UserRegisterRequest {
     @NotBlank(message = "Öğrenci numarası boş olamaz")
     @Size(min = 9, message = "Student Number en az 9 karakter olmalıdır")
     private String studentNumber;
+
+    @Pattern(regexp = "^\\d{2}[A-Z]{1,3}\\d{2,3}$", message = "Plaka formatı yanlış. 2 rakam + 1–3 harf + 2–3 rakam olmalı (örn: 34ABC123)")
+    private String plate;
 }
