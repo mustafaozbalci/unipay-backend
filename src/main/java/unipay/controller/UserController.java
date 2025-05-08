@@ -2,6 +2,8 @@ package unipay.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import unipay.dto.*;
 import unipay.security.JWTUtil;
@@ -38,19 +40,28 @@ public class UserController {
         }
     }
 
-    // Kullanıcı Detayları Getirme
-    @PostMapping("/details")
-    public ResponseEntity<UserResponse> getUserDetails(@RequestHeader("username") String username) {
-        UserResponse userResponse = userService.getUserDetails(username);
+    // Kullanıcı Detayları Getirme (now with auth principal)
+    @GetMapping("/details")
+    public ResponseEntity<UserResponse> getUserDetails(@AuthenticationPrincipal UserDetails auth) {
+        if (auth == null) {
+            return ResponseEntity.status(401).build();
+        }
+        UserResponse userResponse = userService.getUserDetails(auth.getUsername());
         return ResponseEntity.ok(userResponse);
     }
 
-    //Kullanıcının sadece ŞİFRESİNİ güncelleme
+    // Şifre güncelleme
     @PutMapping("/updatePassword")
-    public ResponseEntity<UserResponse> updateUserPassword(@RequestHeader("username") String username, @Valid @RequestBody UserPasswordUpdateRequest passwordUpdateRequest) {
+    public ResponseEntity<UserResponse> updateUserPassword(@AuthenticationPrincipal UserDetails auth, @Valid @RequestBody UserPasswordUpdateRequest req) {
+        UserResponse updated = userService.updateUserPassword(auth.getUsername(), req);
+        return ResponseEntity.ok(updated);
+    }
 
-        UserResponse updatedUser = userService.updateUserPassword(username, passwordUpdateRequest);
-        return ResponseEntity.ok(updatedUser);
+    // Plaka güncelleme
+    @PutMapping("/updatePlate")
+    public ResponseEntity<UserResponse> updateUserPlate(@AuthenticationPrincipal UserDetails auth, @Valid @RequestBody UserPlateUpdateRequest req) {
+        UserResponse updated = userService.updateUserPlate(auth.getUsername(), req);
+        return ResponseEntity.ok(updated);
     }
 
 }

@@ -10,6 +10,7 @@ import unipay.mapper.ParkingMapper;
 import unipay.service.ParkingService;
 import unipay.service.UserService;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -61,5 +62,13 @@ public class ParkingController {
         }
         Long adminId = userService.getUserByUsername(auth.getUsername()).getId();
         return parkingService.getAllSessionsForAdmin(adminId).stream().map(parkingMapper::toDto).collect(Collectors.toList());
+    }
+    /**
+     * Verilen sessionId için, oturum devam ediyorsa
+     * şu ana kadar biriken ücreti anlık döner.
+     */
+    @GetMapping("/current-fee")
+    public BigDecimal currentFee(@RequestParam("sessionId") Long sessionId) {
+        return parkingService.getCurrentFee(sessionId);
     }
 }

@@ -107,4 +107,22 @@ public class ParkingService {
         BigDecimal hrs = BigDecimal.valueOf(minutes).divide(BigDecimal.valueOf(60), 2, BigDecimal.ROUND_UP);
         return rate.multiply(hrs);
     }
+    /**
+     * Aktif bir oturum için, çıkış yapmadan önce
+     * o ana kadar biriken ücreti hesaplar.
+     */
+    @Transactional(readOnly = true)
+    public BigDecimal getCurrentFee(Long sessionId) {
+        ParkingSession sess = sessionRepo.findById(sessionId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid session: " + sessionId));
+
+        if (sess.getExitTime() != null) {
+            // Zaten çıkış yapılmışsa, kaydedilmiş ücreti döndür.
+            return sess.getFee();
+        }
+
+        long minutes = Duration.between(sess.getEnterTime(), LocalDateTime.now()).toMinutes();
+        return calculateFee(minutes);
+    }
+
 }

@@ -135,4 +135,15 @@ public class UserService {
         userRepository.save(user);
         logger.info("Refund complete for userId={}. New balance={}", userId, user.getBalance());
     }
+
+    @Transactional
+    public UserResponse updateUserPlate(String username, UserPlateUpdateRequest req) {
+        logger.info("Updating plate for '{}': {}", username, req.getPlate());
+        User user = getUserByUsername(username);
+        String cleaned = req.getPlate().trim().toUpperCase();
+        user.setPlate(cleaned);
+        User updated = userRepository.save(user);
+        logger.info("Plate updated for '{}': {}", username, updated.getPlate());
+        return userMapper.toUserResponse(updated);
+    }
 }
