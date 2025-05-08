@@ -35,10 +35,12 @@ public class ParkingService {
     public ParkingSession enterVehicle(Long areaId, Long userId, String manualPlate) {
         logger.info("Vehicle entry: areaId={} userId={}", areaId, userId);
         ParkingArea area = parkingAreaRepo.findById(areaId).orElseThrow(() -> new IllegalArgumentException("Invalid area: " + areaId));
+
         int occ = sessionRepo.countByParkingAreaAndExitTimeIsNull(area);
         if (occ >= area.getCapacity()) {
             throw new IllegalStateException("Parking is full");
         }
+
         ParkingSession sess = new ParkingSession();
         sess.setParkingArea(area);
         if (userId != null) {
@@ -49,10 +51,12 @@ public class ParkingService {
         }
         sess.setEnterTime(LocalDateTime.now());
         sess = sessionRepo.save(sess);
+
         if (occ + 1 >= area.getCapacity()) {
             area.setStatus(ParkingStatus.FULL);
             parkingAreaRepo.save(area);
         }
+
         logger.info("Created session id={}", sess.getId());
         return sess;
     }
@@ -61,25 +65,34 @@ public class ParkingService {
     public ParkingSession exitVehicle(Long sessionId) {
         logger.info("Processing exit for sessionId={}", sessionId);
         ParkingSession sess = sessionRepo.findById(sessionId).orElseThrow(() -> new IllegalArgumentException("Invalid session: " + sessionId));
+
         if (sess.getExitTime() != null) {
             throw new IllegalStateException("Already exited: " + sessionId);
         }
+
         sess.setExitTime(LocalDateTime.now());
         long mins = Duration.between(sess.getEnterTime(), sess.getExitTime()).toMinutes();
         BigDecimal fee = calculateFee(mins);
         sess.setFee(fee);
         sess = sessionRepo.save(sess);
+
         if (sess.getUser() != null) {
+            // 1) Kullanıcı bakiyesini düşür
             userService.checkAndDecreaseBalance(sess.getUser().getId(), fee.doubleValue());
+            // 2) Otopark hesabına ekle
+            userService.updateUserBalance("otopark", fee.doubleValue());
         } else {
+            // manuel girişler direkt otoparka yazılır
             userService.updateUserBalance("otopark", fee.doubleValue());
         }
+
         ParkingArea area = sess.getParkingArea();
         int occAfter = sessionRepo.countByParkingAreaAndExitTimeIsNull(area);
         if (area.getStatus() == ParkingStatus.FULL && occAfter < area.getCapacity()) {
             area.setStatus(ParkingStatus.AVAILABLE);
             parkingAreaRepo.save(area);
         }
+
         logger.info("Exit completed for sessionId={} fee={}", sessionId, fee);
         return sess;
     }
@@ -107,22 +120,16 @@ public class ParkingService {
         BigDecimal hrs = BigDecimal.valueOf(minutes).divide(BigDecimal.valueOf(60), 2, BigDecimal.ROUND_UP);
         return rate.multiply(hrs);
     }
-    /**
-     * Aktif bir oturum için, çıkış yapmadan önce
-     * o ana kadar biriken ücreti hesaplar.
-     */
+
     @Transactional(readOnly = true)
     public BigDecimal getCurrentFee(Long sessionId) {
         ParkingSession sess = sessionRepo.findById(sessionId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid session: " + sessionId));
 
         if (sess.getExitTime() != null) {
-            // Zaten çıkış yapılmışsa, kaydedilmiş ücreti döndür.
             return sess.getFee();
         }
-
         long minutes = Duration.between(sess.getEnterTime(), LocalDateTime.now()).toMinutes();
         return calculateFee(minutes);
     }
-
 }

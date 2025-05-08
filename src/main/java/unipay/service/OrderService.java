@@ -37,8 +37,13 @@ public class OrderService {
 
     @Transactional
     public OrderResponse placeOrder(Long userId, OrderRequest req) {
-        logger.info("Placing order: userId={}, total={}", userId, req.getTotalAmount());
-        userService.checkAndDecreaseBalance(userId, req.getTotalAmount());
+        double amount = req.getTotalAmount();
+        logger.info("Placing order: userId={}, total={}", userId, amount);
+
+        // 1) Kullanıcının bakiyesini kontrol et ve düşür
+        userService.checkAndDecreaseBalance(userId, amount);
+
+        // 2) Siparişi kaydet
         Restaurant rest = restaurantService.getRestaurantById(req.getRestaurantId());
         User user = userService.getUserById(userId);
 
@@ -47,7 +52,7 @@ public class OrderService {
         order.setRestaurant(rest);
         order.setOrderTime(LocalDateTime.now());
         order.setStatus(OrderStatus.PENDING);
-        order.setTotalAmount(req.getTotalAmount());
+        order.setTotalAmount(amount);
         order.setOrderItems(req.getItems().stream().map(i -> {
             OrderItem it = new OrderItem();
             it.setOrder(order);
@@ -56,24 +61,38 @@ public class OrderService {
             it.setPrice(i.getPrice());
             return it;
         }).collect(Collectors.toList()));
+
         Order saved = orderRepo.save(order);
-        logger.info("Order created: id={}", saved.getId());
+        logger.info("Order created (PENDING): id={}", saved.getId());
         return mapper.toOrderResponse(saved);
     }
 
     @Transactional
     public OrderResponse updateOrderStatus(OrderUpdateRequest req) {
-        logger.info("Updating status: orderId={}, status={}", req.getOrderId(), req.getStatus());
         Order order = orderRepo.findById(req.getOrderId()).orElseThrow(() -> new OrderNotFoundException("Order not found"));
         OrderStatus old = order.getStatus();
+
+        // Status ve estimatedPrepTime'ı güncelle
         order.setStatus(req.getStatus());
         order.setEstimatedPreparationTime(req.getEstimatedPreparationTime());
-        if (req.getStatus() == OrderStatus.REJECTED && old != OrderStatus.REJECTED) {
-            userService.refundBalance(order.getUser().getId(), order.getTotalAmount());
-            logger.info("Refunded {} for orderId={}", order.getTotalAmount(), order.getId());
+
+        double amount = order.getTotalAmount();
+        String restUsername = order.getRestaurant().getName();
+        Long buyerId = order.getUser().getId();
+
+        // COMPLETED olduğunda: restorana bir kez bakiye ekle
+        if (req.getStatus() == OrderStatus.COMPLETED && old != OrderStatus.COMPLETED) {
+            userService.updateUserBalance(restUsername, amount);
+            logger.info("Credited {} to restaurant '{}'", amount, restUsername);
         }
+
+        // REJECTED durumunda: kullanıcıyı iade et (restoran daha önce kredilenmemiş)
+        if (req.getStatus() == OrderStatus.REJECTED && old != OrderStatus.REJECTED) {
+            userService.refundBalance(buyerId, amount);
+            logger.info("Refunded {} to userId={}", amount, buyerId);
+        }
+
         Order updated = orderRepo.save(order);
-        logger.info("Order status updated: id={} {}", updated.getId(), updated.getStatus());
         return mapper.toOrderResponse(updated);
     }
 
