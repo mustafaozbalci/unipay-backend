@@ -18,7 +18,6 @@ import java.util.List;
 
 /**
  * REST controller for managing orders.
- * <p>
  * Provides endpoints for:
  * - Placing a new order
  * - Retrieving orders for a specific restaurant (secured)
@@ -60,7 +59,6 @@ public class OrderController {
 
     /**
      * Retrieves all orders for the specified restaurant.
-     * <p>
      * Access restricted to users with the RESTAURANT role.
      *
      * @param restaurantOrdersRequest request containing the restaurant name
@@ -90,7 +88,6 @@ public class OrderController {
 
     /**
      * Updates the status of an existing order.
-     * <p>
      * Access restricted to users with the RESTAURANT role.
      *
      * @param orderUpdateRequest validated payload containing order ID and new status

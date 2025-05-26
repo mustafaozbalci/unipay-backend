@@ -9,7 +9,6 @@ import java.util.List;
 
 /**
  * REST controller for managing parking areas.
- * <p>
  * Provides endpoints to:
  * - Retrieve all parking areas
  * - Update the status of a specific parking area
