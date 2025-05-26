@@ -1,7 +1,7 @@
 # UniPay
 
 UniPay is a closed-loop, campus-wide prepaid payment and parking management system.
-Built with Spring Boot and PostgreSQL on the backend, it provides users with seamless campus café ordering, NFC-style parking entry/exit, balance top-up via Iyzico, and real-time parking area monitoring.
+Built with Spring Boot and PostgreSQL on the backend, it provides users with seamless campus café ordering with real-time order tracking, parking entry/exit, balance top-up via Iyzico, and real-time parking area monitoring.
 
 ---
 
