@@ -1,4 +1,3 @@
-// src/main/java/unipay/security/SecurityConfig.java
 package unipay.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +16,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
+/**
+ * Configures application security, enabling JWT-based stateless authentication
+ * and method-level security annotations.
+ */
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
@@ -24,33 +27,46 @@ public class SecurityConfig {
     @Autowired
     private JWTAuthenticationFilter jwtAuthenticationFilter;
 
+    /**
+     * Password encoder bean using BCrypt.
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Defines the security filter chain.
+     * Disables CSRF, enables CORS, sets session to stateless,
+     * and configures endpoint authorization rules.
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.cors(withDefaults()).csrf(csrf -> csrf.disable()).sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS)).authorizeHttpRequests(auth -> auth
-                // auth endpoints
+                // Allow unauthenticated access to auth endpoints
                 .requestMatchers("/api/auth/**").permitAll()
 
-                // restoran listesi herkes görebilsin
+                // Allow anyone to list restaurants
                 .requestMatchers(HttpMethod.POST, "/api/restaurants/list").permitAll()
 
-                // restoran ekleme/güncelleme/silme sadece restoran rolü
+                // Only users with RESTAURANT role can add/update/delete restaurants
                 .requestMatchers("/api/restaurants/add", "/api/restaurants/update/**", "/api/restaurants/delete/**").hasAuthority("ROLE_RESTAURANT")
 
-                // ödeme yalnızca girişli
+                // Payment endpoints require authentication
                 .requestMatchers("/api/payment/**").authenticated()
 
-                // diğer tüm api’ler
+                // All other requests require authentication
                 .anyRequest().authenticated());
 
+        // Register JWT filter before the username/password authentication filter
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 
+    /**
+     * Exposes the AuthenticationManager used by Spring Security.
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
