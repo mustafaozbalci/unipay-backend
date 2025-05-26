@@ -1,3 +1,6 @@
+/*
+THIS FILE PROVIDES THE FRONTEND CONNECTION AND PERMISSION CONFIGURATION. DO NOT CHANGE!
+ */
 package unipay.config;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +29,3 @@ public class GlobalCorsConfig {
         };
     }
 }
-/*
-THIS FILE PROVIDES THE FRONTEND CONNECTION AND PERMISSION CONFIGURATION. DO NOT CHANGE!
- */
