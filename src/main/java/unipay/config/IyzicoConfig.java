@@ -1,3 +1,6 @@
+/*
+THIS FILE CONTAINS THE CONNECTION SETTINGS FOR THE PAYMENT IYZICO ACCOUNT.
+ */
 package unipay.config;
 
 import com.iyzipay.Options;
@@ -26,6 +29,3 @@ public class IyzicoConfig {
         return options;
     }
 }
-/*
-BU DOSYA ÖDEME ALINAN HESABA DAİR BAĞLANTI AYARLARINI İÇERİR.
- */
