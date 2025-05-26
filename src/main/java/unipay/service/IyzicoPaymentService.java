@@ -16,25 +16,44 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Service integrating with Iyzico to handle deposit payments.
+ * Validates amounts, constructs the request, and logs results.
+ */
 @Service
 public class IyzicoPaymentService {
 
     private static final Logger logger = LoggerFactory.getLogger(IyzicoPaymentService.class);
 
+    /**
+     * Iyzico API options bean (injected from config)
+     */
     private final Options options;
 
-    // Options bean'i Config’den alıyoruz.
+    /**
+     * Initialize the service with Iyzico options.
+     *
+     * @param options configured Iyzico API options
+     */
     public IyzicoPaymentService(Options options) {
         this.options = options;
     }
 
     /**
-     * 1) price & paidPrice validation
-     * 2) CreatePaymentRequest oluştur
-     * 3) Iyzico'ya istek gönder
+     * Processes a deposit by calling Iyzico.
+     * First validates prices, then maps to CreatePaymentRequest
+     * and sends the request. Logs success or failure.
+     *
+     * @param dto deposit details including amount and card info
+     * @return the Iyzico Payment response
+     * @throws Exception on Iyzico API errors
      */
     public Payment depositMoney(PaymentDepositRequestDTO dto) throws Exception {
         logger.info("Starting deposit: {}", dto.getPrice());
+        // Validate price and paidPrice match
+        validatePrices(dto.getPrice(), dto.getPaidPrice());
+
+        // Send payment request to Iyzico
         Payment payment = Payment.create(mapToCreatePaymentRequest(dto), options);
         if ("SUCCESS".equalsIgnoreCase(payment.getStatus())) {
             logger.info("Deposit successful: conversationId={}", payment.getConversationId());
@@ -44,34 +63,45 @@ public class IyzicoPaymentService {
         return payment;
     }
 
-    // price ve paidPrice kontrolü
+    /**
+     * Ensures price and paidPrice are non-null and equal.
+     *
+     * @param price     original requested amount
+     * @param paidPrice final amount to be paid
+     */
     private void validatePrices(BigDecimal price, BigDecimal paidPrice) {
         logger.info("validatePrices() - Start, price: {}, paidPrice: {}", price, paidPrice);
 
         if (price == null || paidPrice == null) {
-            logger.error("price veya paidPrice null geldi.");
-            throw new IllegalArgumentException("price ve paidPrice zorunludur.");
+            logger.error("price or paidPrice is null");
+            throw new IllegalArgumentException("price and paidPrice are required.");
         }
         if (price.compareTo(paidPrice) != 0) {
-            logger.error("Gönderilen tutar, tüm kırılımların toplam tutarına eşit değil. Price: {}, PaidPrice: {}", price, paidPrice);
-            throw new IllegalArgumentException("Gönderilen tutar, tüm kırılımların toplam tutarına eşit olmalıdır.");
+            logger.error("Mismatch between price and paidPrice. price: {}, paidPrice: {}", price, paidPrice);
+            throw new IllegalArgumentException("price must equal paidPrice.");
         }
 
-        logger.info("validatePrices() - End, tutarlar geçerli.");
+        logger.info("validatePrices() - End, amounts are valid.");
     }
 
-    // PaymentDepositRequestDTO -> CreatePaymentRequest çevirimi
+    /**
+     * Converts a PaymentDepositRequestDTO into Iyzico's CreatePaymentRequest.
+     * Sets price, buyer, card, addresses, and basket details.
+     *
+     * @param dto deposit details from client
+     * @return a fully populated CreatePaymentRequest
+     */
     private CreatePaymentRequest mapToCreatePaymentRequest(PaymentDepositRequestDTO dto) {
         logger.info("mapToCreatePaymentRequest() - Start, dto: {}", dto);
 
         CreatePaymentRequest request = new CreatePaymentRequest();
 
-        // A) Tutarlar
+        // A) Amounts
         request.setPrice(dto.getPrice());
         request.setPaidPrice(dto.getPaidPrice());
         request.setInstallment(1);
 
-        // B) Varsayılanlar
+        // B) Default parameters
         request.setBasketId("DEP-" + System.currentTimeMillis());
         request.setPaymentChannel("WEB");
         request.setPaymentGroup("PRODUCT");
@@ -79,11 +109,11 @@ public class IyzicoPaymentService {
         request.setConversationId("conv-" + System.currentTimeMillis());
         request.setCurrency("TRY");
 
-        // C) Kart bilgileri
+        // C) Card details
         PaymentCardDTO cardDTO = dto.getPaymentCard();
         if (cardDTO == null) {
-            logger.error("PaymentCard bilgisi null geldi. Kart zorunlu!");
-            throw new IllegalArgumentException("PaymentCard bilgileri zorunludur.");
+            logger.error("PaymentCard is null");
+            throw new IllegalArgumentException("PaymentCard information is required.");
         }
         PaymentCard paymentCard = new PaymentCard();
         paymentCard.setCardHolderName(cardDTO.getCardHolderName());
@@ -94,7 +124,7 @@ public class IyzicoPaymentService {
         paymentCard.setRegisterCard(cardDTO.getRegisterCard());
         request.setPaymentCard(paymentCard);
 
-        // D) Buyer bilgileri: cardHolderName üzerinden ayarlama yapıyoruz.
+        // D) Buyer information, derive name and surname
         String fullName = cardDTO.getCardHolderName() != null ? cardDTO.getCardHolderName().trim() : "";
         String buyerName = fullName;
         String buyerSurname = "";
@@ -103,10 +133,7 @@ public class IyzicoPaymentService {
             buyerName = parts[0];
             buyerSurname = parts[parts.length - 1];
         }
-
-        // Tarih formatı: "yyyy-MM-dd HH:mm:ss"
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
-        String nowFormatted = sdf.format(new Date());
+        String nowFormatted = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH).format(new Date());
 
         Buyer buyer = new Buyer();
         buyer.setId("SANTRAL_BUYER");
@@ -124,7 +151,7 @@ public class IyzicoPaymentService {
         buyer.setZipCode("34060");
         request.setBuyer(buyer);
 
-        // E) Shipping & Billing Adresleri
+        // E) Shipping and billing addresses (use same address for deposit)
         Address address = new Address();
         address.setContactName("Santral İstanbul");
         address.setCity("Istanbul");
@@ -134,7 +161,7 @@ public class IyzicoPaymentService {
         request.setShippingAddress(address);
         request.setBillingAddress(address);
 
-        // F) Sepet (Deposit işlemi için tek ürün)
+        // F) Basket items (single virtual item for deposit)
         List<BasketItem> basketItems = new ArrayList<>();
         BasketItem basketItem = new BasketItem();
         basketItem.setId("DEP_ITEM");
