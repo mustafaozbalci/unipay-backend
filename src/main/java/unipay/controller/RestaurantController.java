@@ -11,17 +11,31 @@ import unipay.service.RestaurantService;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * REST controller for managing restaurants.
+ * Provides endpoints to list, add, update, and delete restaurants.
+ */
 @RestController
 @RequestMapping("/api/restaurants")
 public class RestaurantController {
 
     private final RestaurantService restaurantService;
 
+    /**
+     * Constructs the controller with the required RestaurantService.
+     *
+     * @param restaurantService service handling restaurant operations
+     */
     public RestaurantController(RestaurantService restaurantService) {
         this.restaurantService = restaurantService;
     }
 
-    // Tüm restoranları listeleme
+    /**
+     * Returns the names of all restaurants.
+     * Accessible by anyone (no authentication required).
+     *
+     * @return HTTP 200 with a list of restaurant names
+     */
     @PreAuthorize("permitAll()")
     @PostMapping("/list")
     public ResponseEntity<List<String>> getAllRestaurants() {
@@ -29,7 +43,13 @@ public class RestaurantController {
         return ResponseEntity.ok(restaurantNames);
     }
 
-    // Yeni restoran ekleme
+    /**
+     * Creates a new restaurant with the given name.
+     * Restricted to users with ADMIN role.
+     *
+     * @param request contains the name of the restaurant to create
+     * @return HTTP 200 with a success message including the new restaurant ID
+     */
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/add")
     public ResponseEntity<String> addRestaurant(@RequestBody RestaurantCreateRequest request) {
@@ -37,7 +57,14 @@ public class RestaurantController {
         return ResponseEntity.ok("Restaurant added successfully with ID: " + restaurant.getId());
     }
 
-    // Restoran adı güncelleme
+    /**
+     * Updates the name of an existing restaurant.
+     * Restricted to users with ADMIN role.
+     *
+     * @param id      the ID of the restaurant to update
+     * @param request contains the new restaurant name
+     * @return HTTP 200 with a success message including the updated name
+     */
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/update/{id}")
     public ResponseEntity<String> updateRestaurant(@PathVariable Long id, @RequestBody RestaurantNameUpdateRequest request) {
@@ -45,7 +72,13 @@ public class RestaurantController {
         return ResponseEntity.ok("Restaurant updated successfully: " + updatedRestaurant.getName());
     }
 
-    // Restoran silme
+    /**
+     * Deletes the restaurant with the given ID.
+     * Restricted to users with ADMIN role.
+     *
+     * @param id the ID of the restaurant to delete
+     * @return HTTP 200 with a success message
+     */
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/delete/{id}")
     public ResponseEntity<String> deleteRestaurant(@PathVariable Long id) {
